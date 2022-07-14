@@ -1,17 +1,112 @@
-# -*- coding: utf-8 -*-
-'''
-Data pre process
-
-@author:
-Liu Yun
-'''
 import os
 import pandas as pd
+import dill as pickle
 import numpy as np
 import pymysql
-TPS_DIR = '../data/imdb/10-core/'
-np.random.seed(2022)
+import itertools
+from collections import Counter
+TPS_DIR = 'F:\\Study\\doctor_work\\Git\\copy_JPKG\\data\\amazon\\'
+np.random.seed(2022) # for now 5-core, 4-core, 3-core, 2-core are 2021random.
 
+def read_movieid_identifier():
+    movie_id_identifier = dict()
+    movie_id_number = dict()
+
+    db = pymysql.connect(host='localhost',
+                             port=3306,
+                             user='root',
+                             password='302485',
+                             db='imdb',
+                             charset='utf8')
+    cursor = db.cursor()
+    search_sql = """select distinct d.movie_id, d.identifier, c.number from entity_emb c,
+    (SELECT 
+        a.movie_id, a.identifier
+    FROM
+        amazon_id2identifier a,
+        (SELECT DISTINCT
+            (movie_id) AS movie_id
+        FROM
+            amazon_dataset_id) b
+    WHERE
+        a.movie_id = b.movie_id and a.identifier != '') d where c.entity_id = d.identifier"""
+    try:
+        cursor.execute(search_sql)
+    except Exception as e:
+        db.rollback()
+        print(str(e))
+    finally:
+        cursor.close()
+        db.close()
+    data_result = cursor.fetchall()
+    for data in data_result:
+        if data[0] not in movie_id_identifier.keys():
+            movie_id_identifier[data[0]] = data[1]
+        if data[0] not in movie_id_number.keys():
+            movie_id_number[data[0]] = data[2]
+
+    return movie_id_identifier, movie_id_number
+
+def read_dataset():
+    __, movie_id_number = read_movieid_identifier()
+    users_id = []
+    items_id = []
+    ratings = []
+    review_identifiers = []
+    amazon_data=pd.DataFrame(columns = ['user_id', 'item_id', 'ratings', 'review_identifiers'])
+
+    db = pymysql.connect(host='localhost',
+                             port=3306,
+                             user='root',
+                             password='302485',
+                             db='imdb',
+                             charset='utf8')
+    cursor = db.cursor()
+    search_sql = """SELECT 
+    d.user_id, d.movie_id, d.rating, d.identifiers
+FROM
+    (SELECT 
+        b.user_id AS user_id,
+            c.movie_id AS movie_id,
+            c.rating AS rating,
+            c.identifier_inx as identifiers
+    FROM
+        (SELECT 
+        COUNT(*) AS repetitions, user_id
+    FROM
+        amazon4mkr
+    GROUP BY user_id
+    HAVING repetitions > 0) b, amazon4mkr c
+    WHERE
+        c.user_id = b.user_id) d"""
+
+    try:
+        cursor.execute(search_sql)
+        data_result = cursor.fetchall()
+        # 
+        for data in data_result:
+            users_id.append(data[0])
+            items_id.append(data[1])
+            nums = data[3].split(",")
+            if data[1] in movie_id_number.keys() and movie_id_number[data[1]] not in nums:
+                review_identifiers.append(str(movie_id_number[data[1]])+','+data[3])
+            else:
+                review_identifiers.append(data[3])
+            ratings.append(data[2])
+
+        amazon_data = pd.DataFrame({'user_id': pd.Series(users_id),
+                                    'item_id': pd.Series(items_id),
+                                    'ratings': pd.Series(ratings),
+                                    'review_identifiers': pd.Series(review_identifiers)})
+    except Exception as e:
+        db.rollback()
+        print(str(e))
+    finally:
+        cursor.close()
+        db.close()
+    amazon_data.to_csv(os.path.join(TPS_DIR, 'amazon.csv'),
+                    index=False)
+    return amazon_data
 
 def get_count(tp, id):
     playcount_groupbyid = tp[[id, 'ratings']].groupby(id, as_index=True)
@@ -26,13 +121,9 @@ def numerize(tp, user2id, item2id):
     tp['item_id'] = sid
     return tp
 
-
 if __name__ == '__main__':
-    data = pd.read_csv(os.path.join(TPS_DIR,'imdb.csv'))
-    print(data.head(10))
-    # review_id2entity = read_id2entity()
-    # selected 1/10 data randomly
-#    data=data_original.sample(frac=0.1)
+    # read_dataset()
+    data = pd.read_csv(os.path.join(TPS_DIR, 'amazon.csv'))
     usercount, itemcount = get_count(
         data, 'user_id'), get_count(data, 'item_id')
     unique_uid = usercount.index
@@ -65,15 +156,14 @@ if __name__ == '__main__':
     tp_test = tp_1[test_idx]
     tp_valid = tp_1[~test_idx]
 
-    tp_train.to_csv(os.path.join(TPS_DIR, 'imdb_train.dat'),
+    tp_train.to_csv(os.path.join(TPS_DIR, 'amazon_train.dat'),
                     index=False, header=None)
-    tp_valid.to_csv(os.path.join(TPS_DIR, 'imdb_valid.dat'),
+    tp_valid.to_csv(os.path.join(TPS_DIR, 'amazon_valid.dat'),
                     index=False, header=None)
-    tp_test.to_csv(os.path.join(TPS_DIR, 'imdb_test.dat'),
+    tp_test.to_csv(os.path.join(TPS_DIR, 'amazon_test.dat'),
                     index=False, header=None)
 
 
-    # item2entity_id = data[['item_id', 'identifier_inx']].drop_duplicates()
     item2entity_id = data[['item_id']].drop_duplicates()
     user2entity_id = data[['user_id']].drop_duplicates()
 
