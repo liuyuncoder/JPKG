@@ -6,9 +6,9 @@ from gat_layers_batch import Attention
 import scipy.sparse as sp
 
 
-class MKR(object):
+class KMRR(object):
     def __init__(self, args, n_users, n_items, n_entities, A_in, all_h_list, all_t_list):
-        super(MKR, self).__init__()
+        super(KMRR, self).__init__()
         self.user_bias = tf.Variable([ 0.1 for _ in range(n_users)])
         self.item_bias = tf.Variable([ 0.1 for _ in range(n_items)])
         self.global_bias = tf.Variable(0.1)
@@ -17,6 +17,7 @@ class MKR(object):
         self.item_emb_layer = tf.keras.layers.Embedding(n_items, args.dim)
         self.entity_emb_layer = tf.keras.layers.Embedding(n_entities, args.dim)
         
+        # for mutual learning module.
         self.user_cc_unit = CrossCompressUnit(args.dim)
         self.item_cc_unit = CrossCompressUnit(args.dim)
 
