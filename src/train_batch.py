@@ -1,11 +1,11 @@
 import tensorflow as tf
 import numpy as np
-from id_cross_model_batch import MKR
+from id_cross_model_batch import KMRR
 import time
 
-physical_devices = tf.config.experimental.list_physical_devices('GPU') 
+# physical_devices = tf.config.experimental.list_physical_devices('GPU') 
 # setting visuable GPU.
-tf.config.experimental.set_visible_devices(physical_devices[0:], 'GPU')
+# tf.config.experimental.set_visible_devices(physical_devices[0:], 'GPU')
 # tf.config.experimental.set_visible_devices([], 'GPU')
 
 def train(args, data, show_loss, show_topk):
@@ -17,7 +17,7 @@ def train(args, data, show_loss, show_topk):
     all_h_list = data[9]
     all_t_list = data[10]
 
-    model = MKR(args, n_user, n_item, n_entity, A_in, all_h_list, all_t_list)
+    model = KMRR(args, n_user, n_item, n_entity, A_in, all_h_list, all_t_list)
     optimizer_rs = tf.keras.optimizers.Adam(
     args.lr_rs, beta_1=0.9, beta_2=0.98, epsilon=1e-9)
     optimizer_kge = tf.keras.optimizers.Adam(
