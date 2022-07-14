@@ -14,8 +14,12 @@ MKR is a multi-task learning method to learn cross features from ratings and rev
 - scipy
 ## Files in the folder
 - data/
-  - amazan/10-core/: the preprocessed dataset with 10-core from Amazon movies & TV dataset.
-  - imdb/10-core/: the preprocessed dataset with 10-core from IMDb dataset.
+  - amazan/
+    - amazon.cvs: the raw dataset of Amazon movies & TV.
+    - 10-core/: the preprocessed dataset with 10-core from Amazon movies & TV dataset.
+  - imdb/
+    - imdb.cvs: the raw dataset of IMDb.
+    - 10-core/: the preprocessed dataset with 10-core from IMDb dataset.
 - src/
   - gat_layers_batch.py: the implementation of graph attention mechanism on link prediction task.
   - id_cross_layers.py: the implementation of mutual learning module.
@@ -24,6 +28,20 @@ MKR is a multi-task learning method to learn cross features from ratings and rev
   - main.py: main.
   - preprocess.py: the preprocess of datasets to convert the original indices of review entities, users, and items into standard indices.
   - train_batch.py: the implementation of the training procudure.
+## The description of datasets
+- amazon.cvs
+  - user_id: user ids.
+  - item_id: item ids.
+  - ratings: ratings from users to items.
+  - review_identifiers: review entities extracted from reviews.
+- imdb.cvs
+  - user_id: user ids.
+  - item_id: item ids.
+  - ratings: ratings from users to items.
+  - review_identifiers: review entities extracted from reviews.
+  - identifier_inx: the item corresponding knowledge entities.
 ## Running the code
-  - cd src
-  - python main.py
+- cd src
+- python read_ratings.py
+- python preprocess.py
+- python main.py
