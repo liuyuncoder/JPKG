@@ -24,6 +24,6 @@ MKR is a multi-task learning method to learn cross features from ratings and rev
   - main.py: main.
   - preprocess.py: the preprocess of datasets to convert the original indices of review entities, users, and items into standard indices.
   - train_batch.py: the implementation of the training procudure.
-  ## Running the code
+## Running the code
   - cd src
   - python main.py
