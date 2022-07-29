@@ -1,5 +1,6 @@
 # JPKG
 The implementation of "Jointly Learning Propagating Features on the Knowledge Graph for Movie Recommendation" (JPKG).
+>Liu, Y., Miyazaki, J., Chang, Q. (2022). Jointly Learning Propagating Features on the Knowledge Graph for Movie Recommendation. In: Strauss, C., Cuzzocrea, A., Kotsis, G., Tjoa, A.M., Khalil, I. (eds) Database and Expert Systems Applications. DEXA 2022. Lecture Notes in Computer Science, vol 13426. Springer, Cham. https://doi.org/10.1007/978-3-031-12423-5_1
 
 The attention learning module and multi-hop propagation module of JPKG achieve attention-based multi-hop propagation feature learning by recursively calculating the different contributions of neighbors on the graph. The mutual learning module of JPKG combines the entity embeddings learned from the two aforementioned modules to help provide more accurate recommendations.
 
