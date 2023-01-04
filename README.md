@@ -46,3 +46,16 @@ MKR is a multi-task learning method to learn cross features from ratings and rev
 - python read_ratings.py
 - python preprocess.py
 - python main.py
+
+## Reference
+if you find the code or data is useful, please cite our work:
+```
+@inproceedings{liu2022jointly,
+  title={Jointly Learning Propagating Features on the Knowledge Graph for Movie Recommendation},
+  author={Liu, Yun and Miyazaki, Jun and Chang, Qiong},
+  booktitle={International Conference on Database and Expert Systems Applications},
+  pages={3--16},
+  year={2022},
+  organization={Springer}
+}
+```
